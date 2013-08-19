@@ -43,6 +43,7 @@ youtube-search 'dark ambient music' --playlist -novideo
 ```
 
 youtube-search options (long and short):
+```
     -p|--playlist
         Play all videos without user interaction.
     -1|--first
@@ -57,3 +58,4 @@ youtube-search options (long and short):
         Only prints in a usable formats and play nothing.
     --max
         The maximum number of videos to watch (useful with --batch)
+```
