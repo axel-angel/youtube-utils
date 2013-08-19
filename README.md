@@ -11,7 +11,9 @@ The options are hard-coded right now. I've written a quvi backend that I could
 publish if necessary. You can give extra options to your player at the end of the line.
 
 eg:
-    youtube 'http://www.youtube.com/watch?v=ofaNR_HnUMI' -loop 0
+```
+youtube 'http://www.youtube.com/watch?v=ofaNR_HnUMI' -loop 0
+```
 
 youtube-fast:
 --
@@ -25,7 +27,9 @@ Play a whole playlist given its PID. It invokes youtube for each video
 separately. You can give extra parameters to your player.
 
 eg:
-    youtube-playlist PLE75A1800C20D8675 -novideo
+```
+youtube-playlist PLE75A1800C20D8675 -novideo
+```
 
 
 youtube-search:
@@ -33,8 +37,10 @@ youtube-search:
 Search youtube videos in an interactive and configurable prompt. By default the program show the video name and asks the user before playing each video. Arguments: first one is the query, then youtube-search arguments, then player extra options. Arguments eaten by youtube-search are all the understood options until it founds an unknown ones, which are passed rawly to `youtube`.
 
 eg:
-    youtube-search 'my little pony'
-    youtube-search 'dark ambient music' --playlist
+```
+youtube-search 'my little pony'
+youtube-search 'dark ambient music' --playlist -novideo
+```
 
 youtube-search options (long and short):
     -p|--playlist
