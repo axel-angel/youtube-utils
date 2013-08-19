@@ -1,0 +1,17 @@
+#!/bin/sh
+
+URL=$(youtube-dl -g "$1")
+TITLE=$(youtube-dl -e "$1")
+CODE=$(echo "$1" | perl -e 'print "$1" if <> =~ m{\?v=([^& ]+)};')
+TITLE="${TITLE}-${CODE}.mp4"
+
+echo $URL;
+echo $CODE;
+echo $TITLE;
+
+while [ 1 ]; do
+    wget --continue "$URL" -O "$TITLE" &
+    WPID=$!
+    read ZZZ
+    kill $WPID || exit 1
+done

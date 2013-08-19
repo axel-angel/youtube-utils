@@ -1,0 +1,126 @@
+#!/usr/bin/perl
+
+use feature "switch";
+use strict;
+use warnings;
+use diagnostics;
+
+use URI::Escape;
+use LWP::Simple;
+use HTML::Entities;
+binmode(STDOUT, ':utf8');
+
+my $pattern = uri_escape(shift @ARGV);
+my $playlist = 0;
+my $first = 0;
+my $skip = 0;
+my $counter = 0;
+my $user;
+my $page;
+my $music = 0;
+my $batch = 0;
+my $max = 1 << 32;
+
+while (@ARGV) {
+    @_ = @ARGV;
+    given ($_[0]) {
+        when (/^(-p|--playlist)$/) {
+            shift;
+            $playlist = 1;
+        }
+        when (/^(-1|--first)$/) {
+            shift;
+            $first = 1;
+        }
+        when (/^(-s|--skip)$/) {
+            shift;
+            $skip = shift;
+        }
+        when (/^(-u|--user)$/) {
+            shift;
+            $user = shift;
+        }
+        when (/^(-m|--music)$/) {
+            shift;
+            $music = 1;
+        }
+        when (/^(-b|--batch)$/) {
+            shift;
+            $batch = 1;
+            $max = 10; # security
+        }
+        when (/^(--max)$/) {
+            shift;
+            $max = shift;
+        }
+        default {
+            last;
+        }
+    }
+}
+
+push @ARGV, "-novideo" if ($music);
+
+PAGES: for my $i (1..50) {
+    if ($counter == 0 and $i > 1) {
+        print STDERR ("stopping as there doesn't seem to be any result anyway\n");
+        exit 1;
+    }
+    print STDERR ("fetching new page $i\n");
+
+    if ($user) {
+        $page = "https://youtube.com/user/${user}/videos?query=${pattern}&page=${i}";
+    } else {
+        $page = "https://youtube.com/results?search_query=${pattern}&search_type=&aq=f&oq=&page=${i}";
+    }
+
+    my $html = get($page);
+    if (!defined $html) {
+        print "page is empty, seems not connected or error\n";
+        exit 1;
+    }
+    VIDEOS: while ($html =~ m{title="([^"]+?)"[^<]*?href="/watch\?v=([^"]+?)"}g) {
+        my ($title,$watch) = (decode_entities($1),$2);
+        my $video_url = "https://youtube.com/watch?v=$watch";
+        $counter += 1;
+
+        if ($counter <= $skip) {
+            print STDERR ("Skipping ($counter) $watch\n");
+            next VIDEOS;
+        }
+        if ($max <= $counter) {
+            print STDERR ("Stopped at last video\n");
+            last PAGES;
+        }
+
+        if ($batch) {
+            print("$counter $title $video_url\n");
+        }
+        else {
+            print("Play video #$counter '$title' [ $video_url ]? ");
+        }
+
+        unless ($batch || $playlist) {
+            given (<stdin>) {
+                when (/^(n|no|non)$/i) {
+                    next VIDEOS;
+                }
+                when (/^only$/i) {
+                    $first = 1;
+                }
+                when (/^(q|quit|exit|stop)$/) {
+                    exit(1);
+                }
+                default { }
+            }
+        }
+
+        if (!$batch && system("youtube", $video_url, @ARGV)) {
+            exit 1;
+        }
+
+        if ($first == 1) {
+            last PAGES;
+        }
+    }
+}
