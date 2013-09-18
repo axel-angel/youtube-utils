@@ -1,10 +1,22 @@
 #!/bin/bash
 
+DUMP=0;
+if [ "$1" == "--dump" ]; then
+    shift;
+    DUMP=1;
+fi;
+
 ID=$1;
+i=0;
 shift;
 
 for el in $(curl -sL "http://www.youtube.com/playlist?list=${ID}&feature=plcp" | perl -ne '$enabled = true if m{"playlist-video-item}; $enabled = false if m{"playlist-pager"}; print if $enabled;' | grep -o '/watch?v=[^ &]\+&' | uniq);
 do
-    echo "Playing http://youtube.com${el}";
-    youtube "youtube.com${el}" $* || break;
+    i=$((i+1));
+    if [ "$DUMP" -eq "0" ]; then
+        echo "Playing [$i] http://youtube.com${el}";
+        youtube "youtube.com${el}" $* || break;
+    else
+        echo "http://youtube.com${el}";
+    fi;
 done;
