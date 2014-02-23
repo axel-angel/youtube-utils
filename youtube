@@ -1,13 +1,6 @@
 #!/bin/bash
 URL=$1;
 shift;
-quality=$(($1+0));
-if [ "$quality" = "0" ]; then
-    quality=75;
-else
-    quality=$1;
-    shift;
-fi;
 URL2=$(youtube-dl --prefer-free-formats --max-quality=7 -g "$URL")
 # [2013.08.03] disabled cookies because it does a HTTP 403
 exec mplayer -cache 102400 -cache-min 0 -cache-seek-min 1 "$URL2" $*
