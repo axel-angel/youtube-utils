@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
-use feature "switch";
 use strict;
 use warnings;
-use diagnostics;
+#use diagnostics;
 
+use Getopt::Long;
 use URI::Escape;
 use LWP::Simple;
 use HTML::Entities;
@@ -19,44 +19,22 @@ my $user;
 my $page;
 my $music = 0;
 my $batch = 0;
-my $max = 1 << 32;
+my $max;
 
-while (@ARGV) {
-    @_ = @ARGV;
-    given ($_[0]) {
-        when (/^(-p|--playlist)$/) {
-            shift;
-            $playlist = 1;
-        }
-        when (/^(-1|--first)$/) {
-            shift;
-            $first = 1;
-        }
-        when (/^(-s|--skip)$/) {
-            shift;
-            $skip = shift;
-        }
-        when (/^(-u|--user)$/) {
-            shift;
-            $user = shift;
-        }
-        when (/^(-m|--music)$/) {
-            shift;
-            $music = 1;
-        }
-        when (/^(-b|--batch)$/) {
-            shift;
-            $batch = 1;
-            $max = 10; # security
-        }
-        when (/^(--max)$/) {
-            shift;
-            $max = shift;
-        }
-        default {
-            last;
-        }
-    }
+GetOptions ( 'p|playlist' => \$playlist
+           , '1|first' => \$first
+           , 's|skip' => \$skip
+           , 'u|user=s' => \$user
+           , 'm|music' => \$music
+           , 'b|batch' => \$batch
+           , 'max=i' => \$max
+           )
+    || die('Parsing error');
+
+if ($batch and (not $max)) {
+    $max = 1 << 32;
+} else {
+    $max = 10; # security
 }
 
 push @ARGV, "-novideo" if ($music);
@@ -101,17 +79,15 @@ PAGES: for my $i (1..50) {
         }
 
         unless ($batch || $playlist) {
-            given (<stdin>) {
-                when (/^(n|no|non)$/i) {
+            my $ans = <stdin>;
+            if ($ans =~ /^(n|no|non)$/i) {
                     next VIDEOS;
-                }
-                when (/^only$/i) {
-                    $first = 1;
-                }
-                when (/^(q|quit|exit|stop)$/) {
-                    exit(1);
-                }
-                default { }
+            }
+            elsif ($ans =~ /^only$/i) {
+                $first = 1;
+            }
+            elsif ($ans =~ /^(q|quit|exit|stop)$/) {
+                exit(1);
             }
         }
 
