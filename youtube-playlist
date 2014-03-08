@@ -10,7 +10,7 @@ ID=$1;
 i=0;
 shift;
 
-for el in $(curl -sL "http://www.youtube.com/playlist?list=${ID}&feature=plcp" | perl -ne '$enabled = true if m{"playlist-video-item}; $enabled = false if m{"playlist-pager"}; print if $enabled;' | grep -o '/watch?v=[^ &]\+&' | uniq);
+for el in $(curl -sL "https://www.youtube.com/playlist?list=${ID}" | perl -ne '$enabled = true if m{browse-items-primary}; $enabled = false if m{footer-container}; print if $enabled;' | grep -o '/watch?v=[^ &]\+&' | uniq);
 do
     i=$((i+1));
     if [ "$DUMP" -eq "0" ]; then
