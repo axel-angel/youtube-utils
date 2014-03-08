@@ -3,7 +3,7 @@ URL=$1;
 shift;
 
 # mplayer does not support https
-URL2=$(youtube-dl --no-playlist --prefer-free-formats -g "$URL" | sed 's/https/http/')
+URL2=$(youtube-dl --cookies /tmp/ydl-cookies --no-playlist --prefer-free-formats -g "$URL" | sed 's/https/http/')
 
 # [2013.08.03] disabled cookies because it does a HTTP 403
-exec mplayer -cache 102400 -cache-min 0 -cache-seek-min 1 "$URL2" $*
+exec mplayer --cookies --cookies-file=/tmp/ydl-cookies -cache 102400 -cache-min 0 -cache-seek-min 1 "$URL2" $*
