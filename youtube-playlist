@@ -15,7 +15,7 @@ do
     i=$((i+1));
     if [ "$DUMP" -eq "0" ]; then
         echo "Playing [$i] http://youtube.com${el}";
-        youtube "youtube.com${el}" $* || break;
+        youtube "http://youtube.com${el}" $* || break;
     else
         echo "http://youtube.com${el}";
     fi;
