@@ -82,7 +82,15 @@ PAGES: for my $i (1..50) {
         unless ($batch || $playlist) {
             my $ans = <stdin>;
             if ($ans =~ /^(n|no|non)$/i) {
-                    next VIDEOS;
+                next VIDEOS;
+            }
+            elsif ($ans =~ /^(p|pl|playlist)$/i) {
+                my ($pl) = $video_url =~ m{list=([^&]+)};
+                print("playing full playlist: $pl\n");
+                if (!$batch && system("youtube-playlist", $pl, @ARGV)) {
+                    exit 1;
+                }
+                next VIDEOS;
             }
             elsif ($ans =~ /^only$/i) {
                 $first = 1;
