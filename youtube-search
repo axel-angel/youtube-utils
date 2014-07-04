@@ -50,7 +50,7 @@ PAGES: for my $i (1..50) {
     if ($user) {
         $page = "https://youtube.com/user/${user}/videos?query=${pattern}&page=${i}";
     } else {
-        $page = "https://youtube.com/results?search_query=${pattern}&search_type=&aq=f&oq=&page=${i}";
+        $page = "https://youtube.com/results?search_query=${pattern}&page=${i}";
     }
 
     my $html = get($page);
@@ -58,8 +58,8 @@ PAGES: for my $i (1..50) {
         print "page is empty, seems not connected or error\n";
         exit 1;
     }
-    VIDEOS: while ($html =~ m{title="([^"]+?)"[^<]*?href="/watch\?v=([^"]+?)"}g) {
-        my ($title,$watch) = (decode_entities($1),$2);
+    VIDEOS: while ($html =~ m{<h3 .*?<a .*?href="/watch\?v=([^"]+?)"[^>]*>([^<]+)<}g) {
+        my ($title,$watch) = (decode_entities($2),$1);
         my $video_url = "https://youtube.com/watch?v=$watch";
         $counter += 1;
 
