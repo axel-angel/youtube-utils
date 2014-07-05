@@ -58,8 +58,8 @@ PAGES: for my $i (1..50) {
         print "page is empty, seems not connected or error\n";
         exit 1;
     }
-    VIDEOS: while ($html =~ m{<h3 .*?<a .*?href="/watch\?v=([^"]+?)"[^>]*>([^<]+)<}g) {
-        my ($title,$watch) = (decode_entities($2),$1);
+    VIDEOS: while ($html =~ m{<span .*?video-time.*?>([0-9:]+)</span>.*?<h3 .*?yt-lockup-title.*?<a .*?href="/watch\?v=([^"]+?)"[^>]*>([^<]+)<}gs) {
+        my ($title,$watch,$time) = (decode_entities($3),$2,$1);
         my $video_url = "https://youtube.com/watch?v=$watch";
         $counter += 1;
 
@@ -76,7 +76,7 @@ PAGES: for my $i (1..50) {
             print("$counter $title $video_url\n");
         }
         else {
-            print("Play video #$counter '$title' [ $video_url ]? ");
+            print("Play video #$counter '$title' ($time) [ $video_url ]? ");
         }
 
         unless ($batch || $playlist) {
